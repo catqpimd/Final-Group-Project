@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drum & Synth Pad</title>
+    <style>
+        body {
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            background-color: #0a0a0a;
+            color: #0ff;
+            margin: 0;
+            padding: 0;
+        }
+        .pad-container {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            gap: 15px;
+            justify-content: center;
+            margin-top: 50px;
+        }
+        .pad {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(145deg, #1a1a1a, #292929);
+            border: 2px solid #0ff;
+            color: #0ff;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 255, 255, 0.5);
+            transition: all 0.2s;
+        }
+        .pad:hover {
+            background: #0ff;
+            color: #000;
+            box-shadow: 0 4px 20px rgba(0, 255, 255, 0.8);
+        }
+        .pad:active {
+            transform: scale(0.95);
+            background: #08e8de;
+        }
+        h1 {
+            font-size: 32px;
+            margin-top: 20px;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <h1>Drum & Synth Pad</h1>
+    <div class="pad-container">
+        <button class="pad" data-sound="kick">Kick</button>
+        <button class="pad" data-sound="snare">Snare</button>
+        <button class="pad" data-sound="hihat">Hi-Hat</button>
+        <button class="pad" data-sound="clap">Clap</button>
+        <button class="pad" data-note="C">C</button>
+        <button class="pad" data-note="D">D</button>
+        <button class="pad" data-note="E">E</button>
+        <button class="pad" data-note="G">G</button>
+    </div>
+
+    <script>
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        const drumSounds = {
+            kick: 'https://www.myinstants.com/media/sounds/kick-bass.mp3',
+            snare: 'https://www.myinstants.com/media/sounds/snare.mp3',
+            hihat: 'https://www.myinstants.com/media/sounds/hihat.mp3',
+            clap: 'https://www.myinstants.com/media/sounds/clap.mp3'
+        };
+        
+        function playDrum(sound) {
+            const audio = new Audio(drumSounds[sound]);
+            audio.play();
+        }
+        
+        function playSynth(note) {
+            const frequencies = { C: 261.63, D: 293.66, E: 329.63, G: 392.00 };
+            const osc = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(frequencies[note], audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            osc.start();
+            setTimeout(() => osc.stop(), 300);
+        }
+        
+        document.querySelectorAll('.pad').forEach(button => {
+            button.addEventListener('click', () => {
+                const sound = button.getAttribute('data-sound');
+                const note = button.getAttribute('data-note');
+                
+                if (sound) playDrum(sound);
+                if (note) playSynth(note);
+            });
+        });
+    </script>
+</body>
+</html>
+
